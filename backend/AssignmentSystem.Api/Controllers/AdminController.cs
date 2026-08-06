@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AssignmentSystem.Api.Data;
 using AssignmentSystem.Api.Models;
-public record UpdateUserRequest(string FullName, string Email, string Role, int? ClassId);
+
 namespace AssignmentSystem.Api.Controllers;
 
 [ApiController]
@@ -23,7 +23,7 @@ public class AdminController : ControllerBase
     public record AssignTeacherRequest(int TeacherId, int SubjectId);
     public record AssignTeacherToClassRequest(int TeacherId, int ClassRoomId, int SubjectId);
     public record UpdateStudentClassRequest(int StudentId, int ClassRoomId);
-
+    public record UpdateUserRequest(string FullName, string Email, string Role, int? ClassId);
     [HttpPost("classrooms")]
     public async Task<IActionResult> CreateClassRoom(CreateClassRoomRequest request)
     {
