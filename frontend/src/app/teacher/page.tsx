@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { api } from "@/lib/api";
 import type { Assignment } from "@/types";
 import { LayoutGrid, ClipboardList, CheckCircle2, FileClock, Plus } from "lucide-react";
+import type { Assignment, Submission } from "@/types";
 
 interface TeacherSubject {
   id: number;
@@ -22,6 +23,7 @@ const navItems = [{ label: "Overview", href: "/teacher", icon: LayoutGrid }];
 export default function TeacherPage() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [subjects, setSubjects] = useState<TeacherSubject[]>([]);
+  const [submissionSummaries, setSubmissionSummaries] = useState<Record<number, string>>({}); // NEW
   const [loading, setLoading] = useState(true);
 
   const [title, setTitle] = useState("");
@@ -40,6 +42,23 @@ export default function TeacherPage() {
     ]);
     setAssignments(assignmentData);
     setSubjects(subjectData);
+
+    // NEW: fetch submission progress for each assignment
+    const entries = await Promise.all(
+      assignmentData.map(async (a) => {
+        try {
+          const subs = await api.get<Submission[]>(`/assignments/${a.id}/Submissions`);
+          const graded = subs.filter((s) => s.status === "Graded").length;
+          return [a.id, `${subs.length} submitted · ${graded} graded`] as const;
+        } catch {
+          return null;
+        }
+      })
+    );
+    const summaryMap: Record<number, string> = {};
+    entries.forEach((e) => { if (e) summaryMap[e[0]] = e[1]; });
+    setSubmissionSummaries(summaryMap);
+
     setLoading(false);
   }
 
@@ -176,6 +195,7 @@ export default function TeacherPage() {
                       <p className="text-sm font-medium text-ink">{a.title}</p>
                       <p className="text-xs text-slate mt-0.5">
                         {a.subjectName} · Due {new Date(a.deadline).toLocaleDateString()}
+                        {submissionSummaries[a.id] && ` · ${submissionSummaries[a.id]}`}
                       </p>
                     </div>
                     <StatusBadge status={a.status} />

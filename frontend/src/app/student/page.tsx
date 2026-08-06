@@ -8,16 +8,33 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { api } from "@/lib/api";
 import type { Assignment } from "@/types";
 import { LayoutGrid, ClipboardList, CheckCircle2, Clock } from "lucide-react";
+import type { Assignment, Submission } from "@/types";
 
 const navItems = [{ label: "Overview", href: "/student", icon: LayoutGrid }];
 
 export default function StudentPage() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [submissionStatuses, setSubmissionStatuses] = useState<Record<number, string>>({}); // NEW
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get<Assignment[]>("/Assignments").then((data) => {
+    api.get<Assignment[]>("/Assignments").then(async (data) => {
       setAssignments(data);
+
+      const entries = await Promise.all(
+        data.map(async (a) => {
+          try {
+            const sub = await api.get<Submission>(`/assignments/${a.id}/Submissions/mine`);
+            return [a.id, sub.status] as const;
+          } catch {
+            return null;
+          }
+        })
+      );
+      const statusMap: Record<number, string> = {};
+      entries.forEach((e) => { if (e) statusMap[e[0]] = e[1]; });
+      setSubmissionStatuses(statusMap);
+
       setLoading(false);
     });
   }, []);
@@ -51,7 +68,7 @@ export default function StudentPage() {
                     <p className="text-sm font-medium text-ink">{a.title}</p>
                     <p className="text-xs text-slate mt-0.5">{a.subjectName} · Due {new Date(a.deadline).toLocaleString()}</p>
                   </div>
-                  <StatusBadge status={a.status} />
+                  <StatusBadge status={submissionStatuses[a.id] ?? a.status} />
                 </a>
               ))}
               {assignments.length === 0 && (
