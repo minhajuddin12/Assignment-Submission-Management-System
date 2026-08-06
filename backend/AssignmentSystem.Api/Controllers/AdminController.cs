@@ -21,11 +21,7 @@ public class AdminController : ControllerBase
     public record CreateClassRoomRequest(string Name);
     public record CreateSubjectRequest(string Name, int ClassRoomId);
     public record AssignTeacherRequest(int TeacherId, int SubjectId);
-    public record UpdateStudentClassRequest(int StudentId, int ClassRoomId);
-    public record CreateClassRoomRequest(string Name);
-    public record CreateSubjectRequest(string Name, int ClassRoomId);
-    public record AssignTeacherRequest(int TeacherId, int SubjectId);
-    public record AssignTeacherToClassRequest(int TeacherId, int ClassRoomId, int SubjectId); // NEW
+    public record AssignTeacherToClassRequest(int TeacherId, int ClassRoomId, int SubjectId);
     public record UpdateStudentClassRequest(int StudentId, int ClassRoomId);
 
     [HttpPost("classrooms")]
