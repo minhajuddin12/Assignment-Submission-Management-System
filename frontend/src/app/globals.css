@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #F6F7F5;
+  --color-paper-raised: #FFFFFF;
+  --color-ink: #1E2430;
+  --color-ink-soft: #4A5265;
+  --color-slate: #8B93A1;
+  --color-slate-light: #E2E5EA;
+  --color-indigo: #33415C;
+  --color-indigo-soft: #E8EBF1;
+  --color-green: #3E7C6B;
+  --color-green-soft: #E4F0EC;
+  --color-amber: #C97A3D;
+  --color-amber-soft: #F6E9DD;
+  --color-red: #B5533C;
+  --color-red-soft: #F5E4DF;
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.font-mono-data {
+  font-family: var(--font-mono), monospace;
+}
+
+.stamp {
+  transform: rotate(-3deg);
+  border: 1.5px solid currentColor;
+  border-radius: 6px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-indigo);
+  outline-offset: 2px;
+}
+.card-shadow {
+  box-shadow: 0 1px 2px rgba(30, 36, 48, 0.04), 0 4px 12px rgba(30, 36, 48, 0.04);
+}
+
+.nav-active {
+  background-color: var(--color-indigo-soft);
+  color: var(--color-indigo);
+  font-weight: 500;
+}
+
+.eyebrow {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-slate);
+}
