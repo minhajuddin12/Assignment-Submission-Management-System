@@ -43,7 +43,7 @@ export function DashboardLayout({ requiredRole, navItems, children }: DashboardL
 
         <nav className="flex-1 p-4 flex flex-col gap-1">
           {navItems.map((item) => (
-            
+            <a
               key={item.href}
               href={item.href}
               className="px-3 py-2 rounded-md text-sm text-ink-soft hover:bg-paper hover:text-ink transition-colors"
