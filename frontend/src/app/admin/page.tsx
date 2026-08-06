@@ -34,6 +34,11 @@ export default function AdminPage() {
   const [assignStudentId, setAssignStudentId] = useState("");
   const [assignClassId, setAssignClassId] = useState("");
 
+  const [assignTeacherId, setAssignTeacherId] = useState("");
+  const [assignSubjectId, setAssignSubjectId] = useState("");
+  const [assignClassId, setAssignClassId] = useState("");
+  const [assignTeacherClassId, setAssignTeacherClassId] = useState(""); // NEW — classroom for the teacher-assign form
+
   async function loadAll() {
     const [classData, subjectData, userData] = await Promise.all([
       api.get<ClassRoom[]>("/Admin/classrooms"),
@@ -97,12 +102,14 @@ export default function AdminPage() {
 
   async function handleAssignTeacher(e: React.FormEvent) {
     e.preventDefault();
-    if (!assignTeacherId || !assignSubjectId) return;
-    await api.post("/Admin/assign-teacher", {
-      teacherId: Number(assignTeacherId),
-      subjectId: Number(assignSubjectId),
+    if (!assignTeacherId || !assignTeacherClassId || !assignSubjectId) return;
+    await api.post("/Admin/assign-teacher-class", {
+        teacherId: Number(assignTeacherId),
+        classRoomId: Number(assignTeacherClassId),
+        subjectId: Number(assignSubjectId),
     });
     setAssignTeacherId("");
+    setAssignTeacherClassId("");
     setAssignSubjectId("");
     loadAll();
   }
@@ -192,25 +199,40 @@ export default function AdminPage() {
             </Card>
 
             <Card title="Assignments" eyebrow="Link" icon={Link2}>
-              <div className="flex flex-col gap-5">
-                <div>
-                  <p className="text-xs font-medium text-ink-soft mb-2">Assign teacher to subject</p>
-                  <form onSubmit={handleAssignTeacher} className="flex flex-col gap-2">
-                    <select value={assignTeacherId} onChange={(e) => setAssignTeacherId(e.target.value)} className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm">
-                      <option value="">Select teacher</option>
-                      {teachers.map((t) => <option key={t.id} value={t.id}>{t.fullName}</option>)}
+              <div>
+                <p className="text-xs font-medium text-ink-soft mb-2">Assign teacher to class & subject</p>
+                <form onSubmit={handleAssignTeacher} className="flex flex-col gap-2">
+                  <select value={assignTeacherId} onChange={(e) => setAssignTeacherId(e.target.value)} className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm">
+                    <option value="">Select teacher</option>
+                    {teachers.map((t) => <option key={t.id} value={t.id}>{t.fullName}</option>)}
+                  </select>
+                  <select
+                    value={assignTeacherClassId}
+                    onChange={(e) => {
+                      setAssignTeacherClassId(e.target.value);
+                      setAssignSubjectId(""); // reset subject when classroom changes
+                    }}
+                    className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm"
+                  >
+                    <option value="">Select classroom</option>
+                    {classRooms.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                  <div className="flex gap-2">
+                    <select
+                      value={assignSubjectId}
+                      onChange={(e) => setAssignSubjectId(e.target.value)}
+                      disabled={!assignTeacherClassId}
+                      className="flex-1 px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm disabled:opacity-50"
+                    >
+                      <option value="">{assignTeacherClassId ? "Select subject" : "Select a classroom first"}</option>
+                      {subjects
+                        .filter((s) => s.classRoomId === Number(assignTeacherClassId))
+                        .map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
-                    <div className="flex gap-2">
-                      <select value={assignSubjectId} onChange={(e) => setAssignSubjectId(e.target.value)} className="flex-1 px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm">
-                        <option value="">Select subject</option>
-                        {subjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                      </select>
-                      <Button type="submit" className="shrink-0">Assign</Button>
-                    </div>
-                  </form>
-                </div>
-
-                <div>
+                    <Button type="submit" className="shrink-0">Assign</Button>
+                  </div>
+                </form>
+              </div>
                   <p className="text-xs font-medium text-ink-soft mb-2">Assign student to classroom</p>
                   <form onSubmit={handleAssignStudent} className="flex flex-col gap-2">
                     <select value={assignStudentId} onChange={(e) => setAssignStudentId(e.target.value)} className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm">

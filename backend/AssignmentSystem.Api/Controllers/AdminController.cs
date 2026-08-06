@@ -22,6 +22,11 @@ public class AdminController : ControllerBase
     public record CreateSubjectRequest(string Name, int ClassRoomId);
     public record AssignTeacherRequest(int TeacherId, int SubjectId);
     public record UpdateStudentClassRequest(int StudentId, int ClassRoomId);
+    public record CreateClassRoomRequest(string Name);
+    public record CreateSubjectRequest(string Name, int ClassRoomId);
+    public record AssignTeacherRequest(int TeacherId, int SubjectId);
+    public record AssignTeacherToClassRequest(int TeacherId, int ClassRoomId, int SubjectId); // NEW
+    public record UpdateStudentClassRequest(int StudentId, int ClassRoomId);
 
     [HttpPost("classrooms")]
     public async Task<IActionResult> CreateClassRoom(CreateClassRoomRequest request)
@@ -66,6 +71,31 @@ public class AdminController : ControllerBase
 
         var subject = await _db.Subjects.FindAsync(request.SubjectId);
         if (subject is null) return NotFound("Subject not found.");
+
+        _db.TeacherSubjectAssignments.Add(new TeacherSubjectAssignment
+        {
+            TeacherId = request.TeacherId,
+            SubjectId = request.SubjectId
+        });
+        await _db.SaveChangesAsync();
+        return Ok();
+    }
+    [HttpPost("assign-teacher-class")]
+    public async Task<IActionResult> AssignTeacherToClass(AssignTeacherToClassRequest request)
+    {
+        var teacher = await _db.Users.FindAsync(request.TeacherId);
+        if (teacher is null || teacher.Role != UserRole.Teacher) return BadRequest("Invalid teacher.");
+
+        var subject = await _db.Subjects.FindAsync(request.SubjectId);
+        if (subject is null) return NotFound("Subject not found.");
+
+        // guards against a subject/classroom mismatch (e.g. duplicate classroom names)
+        if (subject.ClassRoomId != request.ClassRoomId)
+            return BadRequest("Selected subject does not belong to the selected classroom.");
+
+        var alreadyAssigned = await _db.TeacherSubjectAssignments
+            .AnyAsync(t => t.TeacherId == request.TeacherId && t.SubjectId == request.SubjectId);
+        if (alreadyAssigned) return Conflict("Teacher is already assigned to this subject.");
 
         _db.TeacherSubjectAssignments.Add(new TeacherSubjectAssignment
         {
