@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/Card";
 import { StatCard } from "@/components/ui/StatCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { api } from "@/lib/api";
-import type { Assignment } from "@/types";
 import { LayoutGrid, ClipboardList, CheckCircle2, Clock } from "lucide-react";
 import type { Assignment, Submission } from "@/types";
 

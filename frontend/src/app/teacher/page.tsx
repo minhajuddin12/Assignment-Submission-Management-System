@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/Input";
 import { StatCard } from "@/components/ui/StatCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { api } from "@/lib/api";
-import type { Assignment } from "@/types";
 import { LayoutGrid, ClipboardList, CheckCircle2, FileClock, Plus } from "lucide-react";
 import type { Assignment, Submission } from "@/types";
 
