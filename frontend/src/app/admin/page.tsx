@@ -34,6 +34,12 @@ export default function AdminPage() {
   const [assignStudentId, setAssignStudentId] = useState("");
   const [assignClassId, setAssignClassId] = useState("");
   const [assignTeacherClassId, setAssignTeacherClassId] = useState(""); // classroom for the teacher-assign form
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editRole, setEditRole] = useState("Student");
+  const [editClassId, setEditClassId] = useState("");
+  const [userActionError, setUserActionError] = useState("");
 
   async function loadAll() {
     const [classData, subjectData, userData] = await Promise.all([
@@ -120,6 +126,46 @@ export default function AdminPage() {
     setAssignStudentId("");
     setAssignClassId("");
     loadAll();
+  }
+  function startEditUser(u: AdminUser) {
+  setUserActionError("");
+  setEditingUserId(u.id);
+  setEditName(u.fullName);
+  setEditEmail(u.email);
+  setEditRole(u.role);
+  setEditClassId(u.classId?.toString() ?? "");
+  }
+
+  function cancelEditUser() {
+    setEditingUserId(null);
+    setUserActionError("");
+  }
+
+  async function handleUpdateUser(id: number) {
+    setUserActionError("");
+    try {
+      await api.put(`/Admin/users/${id}`, {
+        fullName: editName,
+        email: editEmail,
+        role: editRole,
+        classId: editRole === "Student" && editClassId ? Number(editClassId) : null,
+      });
+      setEditingUserId(null);
+      loadAll();
+    } catch {
+      setUserActionError("Couldn't update user. Email may already be in use.");
+    }
+  }
+
+  async function handleDeleteUser(id: number) {
+    setUserActionError("");
+    if (!confirm("Delete this user? This cannot be undone.")) return;
+    try {
+      await api.delete(`/Admin/users/${id}`);
+      loadAll();
+    } catch {
+      setUserActionError("Couldn't delete this user — they may have linked assignments or submissions.");
+    }
   }
 
   const teachers = users.filter((u) => u.role === "Teacher");
@@ -250,6 +296,9 @@ export default function AdminPage() {
               </div>
             </Card>
             <Card title="Users" eyebrow="Directory" icon={Users} className="lg:col-span-2">
+              {userActionError && (
+                <div className="bg-red-soft text-red text-sm rounded-md px-3 py-2 mb-3">{userActionError}</div>
+              )}
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left border-b border-slate-light">
@@ -257,17 +306,54 @@ export default function AdminPage() {
                     <th className="pb-2 font-medium eyebrow">Email</th>
                     <th className="pb-2 font-medium eyebrow">Role</th>
                     <th className="pb-2 font-medium eyebrow">Class</th>
+                    <th className="pb-2 font-medium eyebrow">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((u) => (
-                    <tr key={u.id} className="border-b border-slate-light last:border-0">
-                      <td className="py-2.5 text-ink">{u.fullName}</td>
-                      <td className="py-2.5 text-ink-soft">{u.email}</td>
-                      <td className="py-2.5 text-indigo font-mono-data text-xs">{u.role}</td>
-                      <td className="py-2.5 text-ink-soft text-xs">{classRooms.find((c) => c.id === u.classId)?.name || "—"}</td>
-                    </tr>
-                  ))}
+                  {users.map((u) =>
+                    editingUserId === u.id ? (
+                      <tr key={u.id} className="border-b border-slate-light last:border-0">
+                        <td className="py-2.5 pr-2">
+                          <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+                        </td>
+                        <td className="py-2.5 pr-2">
+                          <Input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+                        </td>
+                        <td className="py-2.5 pr-2">
+                          <select value={editRole} onChange={(e) => setEditRole(e.target.value)} className="px-2 py-1.5 rounded-md border border-slate-light bg-white text-ink text-xs">
+                            <option value="Student">Student</option>
+                            <option value="Teacher">Teacher</option>
+                            <option value="Admin">Admin</option>
+                          </select>
+                        </td>
+                        <td className="py-2.5 pr-2">
+                          {editRole === "Student" ? (
+                            <select value={editClassId} onChange={(e) => setEditClassId(e.target.value)} className="px-2 py-1.5 rounded-md border border-slate-light bg-white text-ink text-xs">
+                              <option value="">No class</option>
+                              {classRooms.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                          ) : (
+                            <span className="text-slate text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="py-2.5 flex gap-2">
+                          <Button onClick={() => handleUpdateUser(u.id)} className="text-xs px-2 py-1">Save</Button>
+                          <Button variant="secondary" onClick={cancelEditUser} className="text-xs px-2 py-1">Cancel</Button>
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr key={u.id} className="border-b border-slate-light last:border-0">
+                        <td className="py-2.5 text-ink">{u.fullName}</td>
+                        <td className="py-2.5 text-ink-soft">{u.email}</td>
+                        <td className="py-2.5 text-indigo font-mono-data text-xs">{u.role}</td>
+                        <td className="py-2.5 text-ink-soft text-xs">{classRooms.find((c) => c.id === u.classId)?.name || "—"}</td>
+                        <td className="py-2.5 flex gap-2">
+                          <Button variant="secondary" onClick={() => startEditUser(u)} className="text-xs px-2 py-1">Edit</Button>
+                          <Button variant="secondary" onClick={() => handleDeleteUser(u.id)} className="text-xs px-2 py-1 text-red">Delete</Button>
+                        </td>
+                      </tr>
+                    )
+                  )}
                 </tbody>
               </table>
             </Card>
