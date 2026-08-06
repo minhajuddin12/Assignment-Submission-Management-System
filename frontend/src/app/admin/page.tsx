@@ -33,7 +33,7 @@ export default function AdminPage() {
   const [assignSubjectId, setAssignSubjectId] = useState("");
   const [assignStudentId, setAssignStudentId] = useState("");
   const [assignClassId, setAssignClassId] = useState("");
-  const [assignTeacherClassId, setAssignTeacherClassId] = useState(""); // NEW — classroom for the teacher-assign form
+  const [assignTeacherClassId, setAssignTeacherClassId] = useState(""); // classroom for the teacher-assign form
 
   async function loadAll() {
     const [classData, subjectData, userData] = await Promise.all([
