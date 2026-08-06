@@ -119,4 +119,20 @@ public class SubmissionsController : ControllerBase
         return new SubmissionResponse(s.Id, s.AnswerText, s.SubmittedAt, s.UpdatedAt, s.Status.ToString(),
             s.MarksAwarded, s.TeacherFeedback, s.Student.FullName, s.Assignment.Title);
     }
+    [HttpPut("{submissionId}/status")]
+    [Authorize(Roles = "Teacher,Admin")]
+    public async Task<IActionResult> UpdateStatus(int assignmentId, int submissionId, UpdateSubmissionStatusRequest request)
+    {
+        var submission = await _db.Submissions
+            .FirstOrDefaultAsync(s => s.Id == submissionId && s.AssignmentId == assignmentId);
+
+        if (submission is null) return NotFound();
+
+        if (!Enum.TryParse<SubmissionStatus>(request.Status, true, out var parsedStatus))
+            return BadRequest("Status must be Submitted, Late, Graded, or ReturnedForRevision.");
+
+        submission.Status = parsedStatus;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
 }

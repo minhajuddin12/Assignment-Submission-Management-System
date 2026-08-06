@@ -21,6 +21,8 @@ export default function TeacherAssignmentDetailPage() {
   const [loading, setLoading] = useState(true);
 
   const [gradingId, setGradingId] = useState<number | null>(null);
+  const [statusUpdatingId, setStatusUpdatingId] = useState<number | null>(null);
+  const [statusInput, setStatusInput] = useState("Submitted");
   const [marksInput, setMarksInput] = useState("");
   const [feedbackInput, setFeedbackInput] = useState("");
   const [saving, setSaving] = useState(false);
@@ -54,6 +56,18 @@ export default function TeacherAssignmentDetailPage() {
         feedback: feedbackInput,
       });
       setGradingId(null);
+      loadAll();
+    } finally {
+      setSaving(false);
+    }
+  }
+  async function submitStatusChange(submissionId: number) {
+    setSaving(true);
+    try {
+      await api.put(`/assignments/${assignmentId}/Submissions/${submissionId}/status`, {
+        status: statusInput,
+      });
+      setStatusUpdatingId(null);
       loadAll();
     } finally {
       setSaving(false);
@@ -112,9 +126,23 @@ export default function TeacherAssignmentDetailPage() {
                     </div>
 
                     {gradingId !== s.id && (
-                      <Button variant="secondary" onClick={() => startGrading(s)}>
-                        {s.marksAwarded !== null ? "Edit grade" : "Grade"}
-                      </Button>
+                      <div className="flex flex-col gap-2 items-end">
+                        <Button variant="secondary" onClick={() => startGrading(s)}>
+                          {s.marksAwarded !== null ? "Edit grade" : "Grade"}
+                        </Button>
+                        {statusUpdatingId !== s.id && (
+                          <Button
+                            variant="secondary"
+                            onClick={() => {
+                              setStatusUpdatingId(s.id);
+                              setStatusInput(s.status);
+                            }}
+                            className="text-xs px-2 py-1"
+                          >
+                            Change status
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
 
@@ -144,6 +172,28 @@ export default function TeacherAssignmentDetailPage() {
                           {saving ? "Saving…" : "Save grade"}
                         </Button>
                         <Button variant="secondary" onClick={() => setGradingId(null)}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {statusUpdatingId === s.id && (
+                    <div className="mt-4 bg-paper rounded-lg p-4 flex flex-col gap-3">
+                      <select
+                        value={statusInput}
+                        onChange={(e) => setStatusInput(e.target.value)}
+                        className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm"
+                      >
+                        <option value="Submitted">Submitted</option>
+                        <option value="Late">Late</option>
+                        <option value="ReturnedForRevision">Returned for revision</option>
+                        <option value="Graded">Graded</option>
+                      </select>
+                      <div className="flex gap-2">
+                        <Button onClick={() => submitStatusChange(s.id)} disabled={saving}>
+                          {saving ? "Saving..." : "Update status"}
+                        </Button>
+                        <Button variant="secondary" onClick={() => setStatusUpdatingId(null)}>
                           Cancel
                         </Button>
                       </div>
