@@ -199,40 +199,43 @@ export default function AdminPage() {
             </Card>
 
             <Card title="Assignments" eyebrow="Link" icon={Link2}>
-              <div>
-                <p className="text-xs font-medium text-ink-soft mb-2">Assign teacher to class & subject</p>
-                <form onSubmit={handleAssignTeacher} className="flex flex-col gap-2">
-                  <select value={assignTeacherId} onChange={(e) => setAssignTeacherId(e.target.value)} className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm">
-                    <option value="">Select teacher</option>
-                    {teachers.map((t) => <option key={t.id} value={t.id}>{t.fullName}</option>)}
-                  </select>
-                  <select
-                    value={assignTeacherClassId}
-                    onChange={(e) => {
-                      setAssignTeacherClassId(e.target.value);
-                      setAssignSubjectId(""); // reset subject when classroom changes
-                    }}
-                    className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm"
-                  >
-                    <option value="">Select classroom</option>
-                    {classRooms.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                  <div className="flex gap-2">
-                    <select
-                      value={assignSubjectId}
-                      onChange={(e) => setAssignSubjectId(e.target.value)}
-                      disabled={!assignTeacherClassId}
-                      className="flex-1 px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm disabled:opacity-50"
-                    >
-                      <option value="">{assignTeacherClassId ? "Select subject" : "Select a classroom first"}</option>
-                      {subjects
-                        .filter((s) => s.classRoomId === Number(assignTeacherClassId))
-                        .map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              <div className="flex flex-col gap-5">
+                <div>
+                  <p className="text-xs font-medium text-ink-soft mb-2">Assign teacher to class & subject</p>
+                  <form onSubmit={handleAssignTeacher} className="flex flex-col gap-2">
+                    <select value={assignTeacherId} onChange={(e) => setAssignTeacherId(e.target.value)} className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm">
+                      <option value="">Select teacher</option>
+                      {teachers.map((t) => <option key={t.id} value={t.id}>{t.fullName}</option>)}
                     </select>
-                    <Button type="submit" className="shrink-0">Assign</Button>
-                  </div>
-                </form>
-              </div>
+                    <select
+                      value={assignTeacherClassId}
+                      onChange={(e) => {
+                        setAssignTeacherClassId(e.target.value);
+                        setAssignSubjectId(""); // reset subject when classroom changes
+                      }}
+                      className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm"
+                    >
+                      <option value="">Select classroom</option>
+                      {classRooms.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                    <div className="flex gap-2">
+                      <select
+                        value={assignSubjectId}
+                        onChange={(e) => setAssignSubjectId(e.target.value)}
+                        disabled={!assignTeacherClassId}
+                        className="flex-1 px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm disabled:opacity-50"
+                      >
+                        <option value="">{assignTeacherClassId ? "Select subject" : "Select a classroom first"}</option>
+                        {subjects
+                          .filter((s) => s.classRoomId === Number(assignTeacherClassId))
+                          .map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      </select>
+                      <Button type="submit" className="shrink-0">Assign</Button>
+                    </div>
+                  </form>
+                </div>
+
+                <div>
                   <p className="text-xs font-medium text-ink-soft mb-2">Assign student to classroom</p>
                   <form onSubmit={handleAssignStudent} className="flex flex-col gap-2">
                     <select value={assignStudentId} onChange={(e) => setAssignStudentId(e.target.value)} className="px-3 py-2 rounded-md border border-slate-light bg-white text-ink text-sm">
@@ -250,7 +253,6 @@ export default function AdminPage() {
                 </div>
               </div>
             </Card>
-
             <Card title="Users" eyebrow="Directory" icon={Users} className="lg:col-span-2">
               <table className="w-full text-sm">
                 <thead>
