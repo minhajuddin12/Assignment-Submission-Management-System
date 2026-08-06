@@ -139,7 +139,7 @@ public class AdminController : ControllerBase
         user.ClassId = parsedRole == UserRole.Student ? request.ClassId : null;
 
         await _db.SaveChangesAsync();
-        return Ok();
+        return NoContent();
     }
 
     [HttpDelete("users/{id}")]
@@ -165,6 +165,6 @@ public class AdminController : ControllerBase
 
         _db.Users.Remove(user);
         await _db.SaveChangesAsync();
-        return Ok();
+        return NoContent();
     }
 }
