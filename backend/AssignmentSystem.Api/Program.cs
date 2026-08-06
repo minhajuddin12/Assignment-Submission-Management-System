@@ -52,9 +52,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// =====================================================
-// Automatic migration + seed demo users
-// =====================================================
+// Global exception handling: catches anything unhandled,
+// logs it, and returns a clean JSON error instead of a raw stack trace
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
@@ -72,18 +71,6 @@ app.UseExceptionHandler(errorApp =>
         });
     });
 });
-Everything else in Program.cs — the migration/seed block, CORS, auth setup — stays exactly where it is. This one block just needs to sit early in the pipeline, before app.UseAuthentication().
-
-What this gets you:
-
-Any unhandled exception (a bad DB call, a null reference you didn't anticipate, etc.) now returns a clean { "error": "..." } JSON response instead of leaking a full .NET stack trace to the client — this matters for the "error handling" requirement specifically.
-It's logged server-side with LogError, including the actual exception and which endpoint it hit — visible in your Render logs.
-ASP.NET Core's built-in request logging (already active by default) continues logging every request's method/path/status/duration — combined with this, you already satisfy "logging" at a baseline level without touching every controller.
-Optional next layer (not required, but strengthens it further): adding explicit ILogger calls inside specific controllers for meaningful business events — e.g. logging failed login attempts in AuthController, or when a teacher publishes an assignment. That's controller-by-controller work, more files touched, higher chance of another copy-paste slip like we've hit a few times tonight — so I'd only do it if you have time budget left after the README, the status-change feature, and tests.
-
-Build and test this one first (try hitting a broken endpoint or check your Render logs after a normal request), then tell me: README next, or the teacher "change submission status" feature next?
-
-
 
 using (var scope = app.Services.CreateScope())
 {
