@@ -95,11 +95,22 @@ assignment-submission-system/
 - Node.js 18+
 - A PostgreSQL database (local, Docker, or a hosted instance like Neon/Supabase)
 
-### 1. Database setup
-No manual table creation needed — EF Core migrations create the schema automatically on first
-run, and the app seeds three demo users (Admin, Teacher, Student) if the `Users` table is empty.
+## Database Setup
 
-Just have a PostgreSQL connection string ready before starting the backend.
+This project uses PostgreSQL (Neon).
+
+1. Configure the connection string in appsettings.json:
+
+ConnectionStrings:
+  DefaultConnection=<Host=ep-dawn-frost-azxftn71-pooler.c-3.ap-southeast-1.aws.neon.tech;Port=5432;Database=neondb;Username=neondb_owner;Password=npg_pCGB0NXvTVa3;SSL Mode=Require;Trust Server Certificate=true>
+
+2. Apply migrations:
+
+dotnet ef database update
+
+3. Seed initial data:
+
+dotnet run
 
 ### 2. Backend setup
 ```bash
