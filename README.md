@@ -30,7 +30,7 @@ deadline, and can update their submission until it's graded or the deadline pass
 **Student**
 - View only published assignments for their own classroom
 - View assignment details and deadline
-- Submit an answer; update it up until the deadline (locked once graded or past due)
+- Submit an answer; update it up until the deadline.
 - View submission status, marks, and teacher feedback
 
 ##Tech stack
