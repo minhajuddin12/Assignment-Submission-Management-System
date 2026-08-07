@@ -33,14 +33,16 @@ deadline, and can update their submission until it's graded or the deadline pass
 - Submit an answer; update it up until the deadline (locked once graded or past due)
 - View submission status, marks, and teacher feedback
 
-## Tech stack
+##Tech stack
 
-- **Frontend:** Next.js (App Router), React, TypeScript, Tailwind CSS
-- **Backend:** ASP.NET Core Web API (.NET 10), C#, Entity Framework Core
-- **Database:** PostgreSQL
-- **Auth:** JWT bearer tokens, role-based authorization (`Admin`, `Teacher`, `Student`)
-- **Testing:** xUnit
-- **Docs:** OpenAPI via Scalar (`/scalar/v1` when running)
+* Frontend: Next.js (App Router), React, TypeScript, Tailwind CSS
+* Backend: ASP.NET Core Web API (.NET 10), C#, Entity Framework Core
+* Database: PostgreSQL — chosen for the relational structure of the data
+  (Users, ClassRooms, Subjects, Assignments, Submissions all have clear
+  foreign-key relationships)
+* Auth: JWT bearer tokens, role-based authorization (`Admin`, `Teacher`, `Student`)
+* Testing: xUnit, Moq
+* Docs: OpenAPI via Scalar (`/scalar` when running)
 
 ## Project structure
 
